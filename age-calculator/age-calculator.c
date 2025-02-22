@@ -11,6 +11,8 @@ typedef struct {
     int years;
 }date;
 
+int current_year;
+
 static const int DAYS_IN_MONTH[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 static inline bool isleapyear(short int year) {
@@ -31,86 +33,70 @@ static bool isdatevalid(const date *ptr) {
     if (ptr->days < 1 || ptr->days > days) {
         printf("Invalid day: %d. Day must be between 1 and %d\n", ptr->days, days);
         ret = false;
-    } else {
-        /*  Nothing To Do   */
     }
 
     if (ptr->months < 1 || ptr->months > 12) {
         printf("Invalid month: %d. Month must be between 1 and 12\n", ptr->days);
         ret = false;
-    } else {
-        /*  Nothing To Do   */
     }
     
-    if (ptr->years < 1900 || ptr->years > 2025) {
-        printf("Invalid year: %d. Year must be between 1900 and 2025\n", ptr->days);
+    if (ptr->years < 1900 || ptr->years > current_year) {
+        printf("Invalid year: %d. Year must be between 1900 and %d\n", ptr->days, current_year);
         ret = false;
-    } else {
-        /*  Nothing To Do   */
     }
 
     return ret;
 }
 
-static void calculate_age(date *ptr, const date *str) {
+static void calculate_age(date *age, const date *today, const date *birth) {
+    age->days = today->days - birth->days;
+    age->months = today->months - birth->months;
+    age->years = today->years - birth->years;
+
+    if (age->days < 0) {
+        age->months--;
+        int prevmonth = today->months - 1;
+        if (prevmonth == 0) prevmonth = 12;
+        age->days += getdaysinmonth(prevmonth, today->years);
+
+    }
+
+    if (age->months < 0)
+    {
+        age->years--;
+        age->months += 12;
+    }
+}
+
+int main() {
+    date *birthdate = malloc(sizeof(date));
+    date *today = malloc(sizeof(date));
+    date *age = malloc(sizeof(date));
+
     time_t currenttime;
 
     currenttime = time(NULL);
 
     struct tm *ltime = localtime(&currenttime);
 
-    char days = ltime->tm_mday - str->days;
-    char months = (1 + ltime->tm_mon) - str->months;
-    short int years = (1900 + ltime->tm_year) - str->years;
+    today->days = ltime->tm_mday;
+    today->months = 1 + ltime->tm_mon;
+    today->years = 1900 + ltime->tm_year;
 
-    if (days < 0) {
-        months--;
-        int prevmonth = ltime->tm_mon;
-        if (prevmonth == 0) prevmonth = 12;
-        days += getdaysinmonth(prevmonth, years);
-
-    }
-
-    if (months < 0)
-    {
-        years--;
-        months += 12;
-    }
-
-    ptr->days = days;
-    ptr->months = months;
-    ptr->years = years;
-}
-
-int main() {
-    date *v1 = malloc(sizeof(date));
-    if (v1 == NULL) {
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    } else {
-        /*  Nothing To Do   */
-    }
+    current_year = today->years;
 
     printf("Enter the Date in the order dd-mm-year\n");
-    scanf("%d-%d-%d", &v1->days, &v1->months, &v1->years);
+    scanf("%d-%d-%d", &birthdate->days, &birthdate->months, &birthdate->years);
     
-    if (!isdatevalid(v1)) {
+    if (!isdatevalid(birthdate)) {
         return -1;
     } else {
         /*  Nothing To Do   */
     }
 
-    date *v2 = malloc(sizeof(date));
-    if (v2 == NULL) {
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    } else {
-        /*  Nothing To Do   */
-    }
+    calculate_age(age, today, birthdate);
 
-    calculate_age(v2, v1);
-
-    printf("date differnce is %d years %.2d months %.2d days\n", v2->years, v2->months, v2->days);
+    printf("date differnce is %d years %.2d months %.2d days\n", age->years, age->months, age->days);
 
     return 0;
 }
