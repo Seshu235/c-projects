@@ -1,4 +1,4 @@
-// Write a C program to implement date calculator
+// Write a C program to implement age calculator
 
 #include <stdio.h>
 #include <stdbool.h>
