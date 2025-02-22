@@ -70,8 +70,22 @@ static void calculate_age(date *age, const date *today, const date *birth) {
 
 int main() {
     date *birthdate = malloc(sizeof(date));
+    if (birthdate == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+
     date *today = malloc(sizeof(date));
+    if (today == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+
     date *age = malloc(sizeof(date));
+    if (age == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
 
     time_t currenttime;
 
