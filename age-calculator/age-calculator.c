@@ -1,4 +1,4 @@
-// Write a C program to implement date calculator
+// Write a C program to implement age calculator
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -15,7 +15,7 @@ int current_year;
 
 static const int DAYS_IN_MONTH[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-static inline bool isleapyear(short int year) {
+static inline bool isleapyear(int year) {
     return (!(year % 4) && (!(year % 400) || (year % 100)));
 }
 
