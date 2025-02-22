@@ -5,36 +5,31 @@
 #include <stdlib.h>
 #include <time.h>
 
-typedef struct _date{
-    char days;
-    char months;
-    short int years;
+typedef struct {
+    int days;
+    int months;
+    int years;
 }date;
 
-bool isleapyear(short int year) {
+static const int DAYS_IN_MONTH[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+static inline bool isleapyear(short int year) {
     return (!(year % 4) && (!(year % 400) || (year % 100)));
 }
 
-bool isdatevalid(date *ptr) {
+static int getdaysinmonth(int month, int year) {
+    return (month == 2 && isleapyear(year)? 29 : DAYS_IN_MONTH[month - 1]);
+}
+
+static bool isdatevalid(const date *ptr) {
+    if (!ptr)  return false;
+
     bool ret = true;
     
-    int daysinmonth[] = {
-        31,
-        isleapyear(ptr->years)? 29: 28,
-        31,
-        30,
-        31,
-        30,
-        31,
-        31,
-        30,
-        31,
-        30,
-        31
-    };
+    int days = getdaysinmonth(ptr->months, ptr->years);
     
-    if (ptr->days < 1 || ptr->days > daysinmonth[ptr->months - 1]) {
-        printf("Invalid day: %d. Day must be between 1 and %d\n", ptr->days, daysinmonth[ptr->months - 1]);
+    if (ptr->days < 1 || ptr->days > days) {
+        printf("Invalid day: %d. Day must be between 1 and %d\n", ptr->days, days);
         ret = false;
     } else {
         /*  Nothing To Do   */
@@ -57,7 +52,7 @@ bool isdatevalid(date *ptr) {
     return ret;
 }
 
-void calculate_age(date *ptr, const date *str) {
+static void calculate_age(date *ptr, const date *str) {
     time_t currenttime;
 
     currenttime = time(NULL);
@@ -68,31 +63,15 @@ void calculate_age(date *ptr, const date *str) {
     char months = (1 + ltime->tm_mon) - str->months;
     short int years = (1900 + ltime->tm_year) - str->years;
 
-    int daysinmonth[] = {
-        31,
-        isleapyear(years)? 29: 28,
-        31,
-        30,
-        31,
-        30,
-        31,
-        31,
-        30,
-        31,
-        30,
-        31
-    };
-
     if (days < 0) {
-        if (months == 0) {
-            days += daysinmonth[11];
-        } else {
-            days += daysinmonth[months - 1];
-        }
         months--;
+        int prevmonth = ltime->tm_mon;
+        if (prevmonth == 0) prevmonth = 12;
+        days += getdaysinmonth(prevmonth, years);
+
     }
 
-    if (months <= 0)
+    if (months < 0)
     {
         years--;
         months += 12;
@@ -113,7 +92,7 @@ int main() {
     }
 
     printf("Enter the Date in the order dd-mm-year\n");
-    scanf("%hhd-%hhd-%hd", &v1->days, &v1->months, &v1->years);
+    scanf("%d-%d-%d", &v1->days, &v1->months, &v1->years);
     
     if (!isdatevalid(v1)) {
         return -1;
